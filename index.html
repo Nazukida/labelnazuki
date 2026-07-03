@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LabelNazuki — 现代图像标注工具</title>
+  <meta name="description" content="LabelNazuki 是一款新一代桌面端图像标注工具，替代 LabelImg，支持矩形框/多边形/旋转框/关键点标注，兼容 VOC/YOLO/COCO/CreateML 格式。" />
+  <style>
+    /* ===== CSS Variables ===== */
+    :root {
+      /* Light theme (white + blue) */
+      --bg: #ffffff;
+      --bg-alt: #f8faff;
+      --bg-card: #ffffff;
+      --text: #1a1a2e;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-light: #dbeafe;
+      --accent-glow: rgba(37, 99, 235, 0.15);
+      --gradient-start: #2563eb;
+      --gradient-end: #60a5fa;
+      --hero-bg: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%);
+      --hero-text: #1e3a5f;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --card-shadow-hover: 0 10px 40px rgba(37, 99, 235, 0.12), 0 4px 12px rgba(0,0,0,0.06);
+      --btn-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+      --divider: #e2e8f0;
+      --tag-bg: #eff6ff;
+      --tag-text: #2563eb;
+      --footer-bg: #f8faff;
+      --code-bg: #f1f5f9;
+      --code-text: #1e293b;
+      --nav-bg: rgba(255,255,255,0.85);
+    }
+
+    /* Dark theme (black + deep purple) */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0a0a0f;
+        --bg-alt: #0f0f1a;
+        --bg-card: #12121f;
+        --text: #e8e8f0;
+        --text-secondary: #9ca3af;
+        --text-muted: #6b7280;
+        --border: #2a1a4a;
+        --accent: #a78bfa;
+        --accent-hover: #c4b5fd;
+        --accent-light: #1e1035;
+        --accent-glow: rgba(167, 139, 250, 0.18);
+        --gradient-start: #7c3aed;
+        --gradient-end: #a78bfa;
+        --hero-bg: linear-gradient(135deg, #0a0a14 0%, #120c24 30%, #1a1035 60%, #0f0b1e 100%);
+        --hero-text: #e8e0ff;
+        --card-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 0 0 1px rgba(124, 58, 237, 0.08);
+        --card-shadow-hover: 0 10px 40px rgba(124, 58, 237, 0.18), 0 4px 12px rgba(0,0,0,0.3);
+        --btn-shadow: 0 2px 12px rgba(124, 58, 237, 0.4);
+        --divider: #1e1035;
+        --tag-bg: #1e1035;
+        --tag-text: #a78bfa;
+        --footer-bg: #0a0a14;
+        --code-bg: #1a1035;
+        --code-text: #c4b5fd;
+        --nav-bg: rgba(10,10,15,0.85);
+      }
+    }
+
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.65;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    img { max-width: 100%; display: block; }
+
+    /* ===== Navigation ===== */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-logo:hover { text-decoration: none; }
+
+    .nav-logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: 0 2px 8px var(--accent-glow);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .nav-link:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      padding: 120px 24px 80px;
+      background: var(--hero-bg);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 30%, var(--accent-glow), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 16px;
+      border-radius: 99px;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .hero-badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 60px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      color: var(--hero-text);
+      position: relative;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 580px;
+      margin: 0 auto 36px;
+      position: relative;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: var(--btn-shadow);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px var(--accent-glow);
+      text-decoration: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* ===== Stats ===== */
+    .stats {
+      max-width: 900px;
+      margin: -28px auto 0;
+      padding: 0 24px;
+      position: relative;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 20px;
+      box-shadow: var(--card-shadow);
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ===== Sections ===== */
+    .section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 24px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* ===== Features Grid ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      padding: 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: all 0.3s;
+      box-shadow: var(--card-shadow);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow-hover);
+      border-color: var(--accent);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 18px;
+    }
+
+    .feature-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* ===== Format Badges ===== */
+    .format-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+    }
+
+    .format-card {
+      padding: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .format-card:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .format-name {
+      font-size: 22px;
+      font-weight: 800;
+      font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .format-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* ===== Tech Stack ===== */
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .tech-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 10px;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .tech-tag:hover {
+      border-color: var(--accent);
+    }
+
+    /* ===== Download Section ===== */
+    .download-section {
+      background: var(--bg-alt);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .download-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 24px;
+    }
+
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 48px;
+    }
+
+    .download-card {
+      padding: 32px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      text-align: center;
+      transition: all 0.3s;
+      box-shadow: var(--card-shadow);
+    }
+
+    .download-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--card-shadow-hover);
+      transform: translateY(-2px);
+    }
+
+    .download-os {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .download-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .download-card .size {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    .download-card .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .download-note {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 32px;
+    }
+
+    /* ===== Comparison Table ===== */
+    .comparison-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 14px;
+      margin-top: 40px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 14px 20px;
+      text-align: center;
+    }
+
+    .comparison-table thead th {
+      background: var(--bg-alt);
+      font-weight: 700;
+      color: var(--text);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .comparison-table thead th:first-child {
+      text-align: left;
+    }
+
+    .comparison-table tbody td {
+      border-top: 1px solid var(--divider);
+      color: var(--text-secondary);
+    }
+
+    .comparison-table tbody td:first-child {
+      text-align: left;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .comparison-table .check {
+      color: #22c55e;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .comparison-table .cross {
+      color: #ef4444;
+      font-weight: 700;
+    }
+
+    .comparison-table .highlight-col {
+      background: var(--accent-light);
+    }
+
+    .comparison-table tbody tr:hover td {
+      background: var(--accent-light);
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      background: var(--footer-bg);
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .footer-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+
+    /* ===== Screenshot Placeholder ===== */
+    .screenshot-wrapper {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      margin-top: 40px;
+      background: var(--bg-card);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .screenshot-placeholder {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, var(--accent-light), var(--bg-alt));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 15px;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+
+    .screenshot-placeholder .icon {
+      font-size: 48px;
+      opacity: 0.5;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero {
+        padding: 100px 20px 60px;
+      }
+
+      .section {
+        padding: 56px 20px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .comparison-table {
+        font-size: 12px;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 10px 8px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    /* ===== Animation ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .feature-card {
+      animation: fadeInUp 0.6s ease backwards;
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0.05s; }
+    .feature-card:nth-child(2) { animation-delay: 0.1s; }
+    .feature-card:nth-child(3) { animation-delay: 0.15s; }
+    .feature-card:nth-child(4) { animation-delay: 0.2s; }
+    .feature-card:nth-child(5) { animation-delay: 0.25s; }
+    .feature-card:nth-child(6) { animation-delay: 0.3s; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Navigation ===== -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-icon">L</div>
+        LabelNazuki
+      </a>
+      <div class="nav-links">
+        <a href="#features" class="nav-link">特性</a>
+        <a href="#formats" class="nav-link">格式</a>
+        <a href="#compare" class="nav-link">对比</a>
+        <a href="#download" class="nav-link">下载</a>
+        <a href="<!-- REPO_LINK_PLACEHOLDER -->" class="btn btn-outline" style="padding:6px 16px;font-size:13px;">
+          ⭐ GitHub
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      开源 &amp; 免费
+    </div>
+    <h1>
+      新一代<span class="highlight">图像标注</span>工具
+    </h1>
+    <p class="hero-subtitle">
+      LabelNazuki 是一款现代化的桌面端图像标注软件，支持多种标注类型与格式，
+      专为计算机视觉开发者和数据标注团队打造。轻量、高效、完全开源。
+    </p>
+    <div class="hero-actions">
+      <a href="#download" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        免费下载
+      </a>
+      <a href="<!-- REPO_LINK_PLACEHOLDER -->" class="btn btn-outline" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== Stats ===== -->
+  <div class="stats">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-value">4</div>
+        <div class="stat-label">标注类型</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">4</div>
+        <div class="stat-label">输出格式</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">~5MB</div>
+        <div class="stat-label">安装包体积</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">3</div>
+        <div class="stat-label">操作系统</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Screenshot ===== -->
+  <div class="section" style="padding-bottom:0;">
+    <div class="screenshot-wrapper">
+      <div class="screenshot-placeholder">
+        <span class="icon">🖼️</span>
+        <span>应用截图（替换为实际截图）</span>
+        <span style="font-size:12px;opacity:0.5;">Replace with actual screenshot</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Features ===== -->
+  <section class="section" id="features">
+    <div class="section-header">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">强大、灵活、高效</h2>
+      <p class="section-desc">从标注到导出，LabelNazuki 提供完整的标注工作流，让你的数据准备工作事半功倍。</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🟦</div>
+        <h3>矩形框标注</h3>
+        <p>拖拽即可绘制矩形边界框，支持移动、缩放、复制、锁定宽高比，高效完成目标检测标注。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🟩</div>
+        <h3>多边形标注</h3>
+        <p>逐点点击绘制任意形状多边形，支持顶点编辑和拖拽调整，适用于实例分割任务。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🟨</div>
+        <h3>旋转框标注</h3>
+        <p>带角度的旋转矩形框，适合标注倾斜物体，如遥感图像中的船只、文本检测中的文字区域。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🟪</div>
+        <h3>关键点标注</h3>
+        <p>点击放置关键点，支持可见性标记（可见/遮挡/不可见），适用于姿态估计和面部关键点检测。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">↩️</div>
+        <h3>完善的操作体验</h3>
+        <p>100 步撤销/重做保护、自动保存防丢失、完全自定义快捷键、暗色/亮色主题随心切换。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>极致性能</h3>
+        <p>自研 Canvas 2D 渲染引擎，60fps 丝滑缩放平移。虚拟滚动文件列表，万张图片也流畅。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Formats ===== -->
+  <section class="section" id="formats">
+    <div class="section-header">
+      <div class="section-label">Formats</div>
+      <h2 class="section-title">四大主流格式全覆盖</h2>
+      <p class="section-desc">无论你使用哪种训练框架，LabelNazuki 都能无缝对接你的工作流。</p>
+    </div>
+
+    <div class="format-grid">
+      <div class="format-card">
+        <div class="format-name">PASCAL VOC</div>
+        <div class="format-desc">XML 格式，经典目标检测数据集标准</div>
+      </div>
+      <div class="format-card">
+        <div class="format-name">YOLO</div>
+        <div class="format-desc">TXT 归一化坐标，Darknet / Ultralytics 原生支持</div>
+      </div>
+      <div class="format-card">
+        <div class="format-name">COCO</div>
+        <div class="format-desc">JSON 格式，业界标准，支持分割与关键点</div>
+      </div>
+      <div class="format-card">
+        <div class="format-name">CreateML</div>
+        <div class="format-desc">JSON 格式，Apple 生态原生训练框架</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Comparison ===== -->
+  <section class="section" id="compare">
+    <div class="section-header">
+      <div class="section-label">Compare</div>
+      <h2 class="section-title">与同类工具对比</h2>
+      <p class="section-desc">LabelNazuki 在设计之初就瞄准了 LabelImg 等传统工具的不足之处。</p>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>功能</th>
+            <th class="highlight-col">LabelNazuki</th>
+            <th>LabelImg</th>
+            <th>LabelMe</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>矩形框</td>
+            <td class="check highlight-col">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+          <tr>
+            <td>多边形</td>
+            <td class="check highlight-col">✓</td>
+            <td class="cross">✗</td>
+            <td class="check">✓</td>
+          </tr>
+          <tr>
+            <td>旋转框</td>
+            <td class="check highlight-col">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>关键点</td>
+            <td class="check highlight-col">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>COCO 格式</td>
+            <td class="check highlight-col">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>CreateML 格式</td>
+            <td class="check highlight-col">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>撤销/重做</td>
+            <td class="highlight-col">100 步</td>
+            <td class="cross">✗</td>
+            <td>有限</td>
+          </tr>
+          <tr>
+            <td>自定义快捷键</td>
+            <td class="check highlight-col">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>虚拟滚动</td>
+            <td class="check highlight-col">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>安装包大小</td>
+            <td class="highlight-col">~5–8 MB</td>
+            <td>~200 MB</td>
+            <td>浏览器应用</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== Tech Stack ===== -->
+  <section class="section" style="padding-top:0;">
+    <div class="section-header">
+      <div class="section-label">Tech Stack</div>
+      <h2 class="section-title">技术栈</h2>
+      <p class="section-desc">前沿技术选型，带来极致的性能和开发体验。</p>
+    </div>
+
+    <div class="tech-stack">
+      <span class="tech-tag">🦀 Rust</span>
+      <span class="tech-tag">⚡ Tauri 2</span>
+      <span class="tech-tag">🧡 Svelte 5</span>
+      <span class="tech-tag">🔷 TypeScript</span>
+      <span class="tech-tag">🎨 Canvas 2D</span>
+      <span class="tech-tag">📦 Vite</span>
+    </div>
+  </section>
+
+  <!-- ===== Download ===== -->
+  <div class="download-section" id="download">
+    <div class="download-inner">
+      <div class="section-header" style="margin-bottom:0;">
+        <div class="section-label">Download</div>
+        <h2 class="section-title">立即下载</h2>
+        <p class="section-desc">选择适合你操作系统的安装包。支持 Windows、macOS 和 Linux。</p>
+      </div>
+
+      <div class="download-grid">
+        <div class="download-card">
+          <div class="download-os">🪟</div>
+          <h3>Windows</h3>
+          <div class="size">.msi / .exe 安装包</div>
+          <a href="<!-- DOWNLOAD_WINDOWS_PLACEHOLDER -->" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            下载 Windows 版
+          </a>
+        </div>
+
+        <div class="download-card">
+          <div class="download-os">🍎</div>
+          <h3>macOS</h3>
+          <div class="size">.dmg 安装包（Apple Silicon / Intel）</div>
+          <a href="<!-- DOWNLOAD_MACOS_PLACEHOLDER -->" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            下载 macOS 版
+          </a>
+        </div>
+
+        <div class="download-card">
+          <div class="download-os">🐧</div>
+          <h3>Linux</h3>
+          <div class="size">.deb / .AppImage</div>
+          <a href="<!-- DOWNLOAD_LINUX_PLACEHOLDER -->" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            下载 Linux 版
+          </a>
+        </div>
+      </div>
+
+      <p class="download-note">
+        📌 LabelNazuki 完全免费开源。安装前请查看
+        <a href="<!-- REPO_LINK_PLACEHOLDER -->">GitHub 仓库</a> 中的系统要求。
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <p class="footer-text">
+      &copy; 2024–2026 LabelNazuki. 基于 Tauri 2 + Svelte 5 构建，MIT 开源协议。
+    </p>
+    <div class="footer-links">
+      <a href="<!-- REPO_LINK_PLACEHOLDER -->">GitHub 仓库</a>
+      <a href="<!-- REPO_LINK_PLACEHOLDER -->/issues">问题反馈</a>
+      <a href="#features">特性</a>
+      <a href="#download">下载</a>
+    </div>
+  </footer>
+
+</body>
+</html>
