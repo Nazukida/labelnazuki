@@ -102,11 +102,3 @@ labelnazuki/
 │   └── App.svelte      # 主入口
 └── package.json
 ```
-
-## License
-
-MIT
-=======
-# LabelNazuki-code
-LabelNazuki的代码存储仓库
->>>>>>> cec565ef60f26c97dd579ed8a5c64914e4078de7
