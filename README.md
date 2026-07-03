@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # LabelNazuki
 
 现代图像标注工具，替代 LabelImg。基于 Tauri 2 + Svelte 5 构建，轻量、快速、跨平台。
@@ -19,6 +18,7 @@
 ## 系统要求
 
 - Windows 10+ / macOS 12+ / Linux (Ubuntu 20.04+)
+> 暂时不支持mac和linux，因为代码暂时不公开，等我找到构建安装包的方法再说
 - 推荐分辨率 1280×800 以上
 
 ## 开发
@@ -36,7 +36,7 @@ Windows 额外需要：
 ### 安装
 
 ```bash
-git clone https://github.com/your-name/labelnazuki.git
+git clone https://github.com/Nazukida/labelnazuki.git
 cd labelnazuki
 npm install
 ```
