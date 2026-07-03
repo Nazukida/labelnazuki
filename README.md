@@ -2,6 +2,8 @@
 
 现代图像标注工具，替代 LabelImg。基于 Tauri 2 + Svelte 5 构建，轻量、快速、跨平台。
 
+主页：https://nazukida.github.io/labelnazuki/
+
 ## 特性
 
 - **多种标注类型**: 矩形框、多边形、旋转框、关键点
