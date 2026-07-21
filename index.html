@@ -215,6 +215,7 @@
       font-weight: 800;
       line-height: 1.15;
       letter-spacing: -0.02em;
+      overflow-wrap: anywhere;
       margin-bottom: 20px;
       color: var(--hero-text);
       position: relative;
@@ -323,6 +324,51 @@
       margin-top: 4px;
     }
 
+    /* ===== Release Highlights ===== */
+    .release-section {
+      background: var(--bg-alt);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .release-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 72px 24px;
+    }
+
+    .release-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      margin-top: 40px;
+    }
+
+    .release-item {
+      padding-left: 20px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .release-item h3 {
+      color: var(--text);
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    .release-item p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .release-thanks {
+      margin-top: 36px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary);
+      text-align: center;
+      font-size: 14px;
+    }
+
     /* ===== Sections ===== */
     .section {
       max-width: 1100px;
@@ -349,6 +395,7 @@
       font-size: clamp(26px, 4vw, 36px);
       font-weight: 800;
       letter-spacing: -0.015em;
+      overflow-wrap: anywhere;
       color: var(--text);
       margin-bottom: 14px;
     }
@@ -657,12 +704,48 @@
         padding: 100px 20px 60px;
       }
 
+      .hero h1 {
+        font-size: 30px;
+      }
+
+      .hero-subtitle {
+        max-width: 100%;
+        font-size: 15px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .hero-actions .btn {
+        width: min(100%, 260px);
+        justify-content: center;
+      }
+
+      .stats-grid {
+        gap: 12px;
+        padding: 24px 12px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+      }
+
+      .section-title {
+        font-size: 26px;
+      }
+
       .section {
         padding: 56px 20px;
       }
 
       .features-grid {
         grid-template-columns: 1fr;
+      }
+
+      .release-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
       }
 
       .comparison-table {
@@ -714,6 +797,7 @@
       </a>
       <div class="nav-links">
         <a href="#features" class="nav-link">特性</a>
+        <a href="#whats-new" class="nav-link">1.3.0</a>
         <a href="#formats" class="nav-link">格式</a>
         <a href="#compare" class="nav-link">对比</a>
         <a href="#download" class="nav-link">下载</a>
@@ -726,12 +810,16 @@
 
   <!-- ===== Hero ===== -->
   <section class="hero">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      ver. 1.3.0 · 全平台发布
+    </div>
     <h1>
       新一代<span class="highlight">图像标注</span>工具
     </h1>
     <p class="hero-subtitle">
       LabelNazuki 是一款现代化的桌面端图像标注软件，支持多种标注类型与格式，
-      专为计算机视觉开发者和数据标注团队打造。轻量、高效、完全开源。
+      专为计算机视觉开发者和数据标注团队打造。轻量、高效、开箱即用。
     </p>
     <div class="hero-actions">
       <a href="#download" class="btn btn-primary">
@@ -761,11 +849,39 @@
         <div class="stat-label">安装包体积</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">1/3</div>
+        <div class="stat-value">3/3</div>
         <div class="stat-label">操作系统</div>
       </div>
     </div>
   </div>
+
+  <!-- ===== Release 1.3.0 ===== -->
+  <section class="release-section" id="whats-new">
+    <div class="release-inner">
+      <div class="section-header" style="margin-bottom:0;">
+        <div class="section-label">Release 1.3.0</div>
+        <h2 class="section-title">标注更清楚，平台更完整</h2>
+        <p class="section-desc">这一版聚焦标注信息的完整性，并正式带来 Windows、macOS 与 Linux 安装包。</p>
+      </div>
+
+      <div class="release-grid">
+        <article class="release-item">
+          <h3>完善重要样本标注</h3>
+          <p>进一步完善重要样本的标注流程与信息呈现，让数据整理和复核更可靠。</p>
+        </article>
+        <article class="release-item">
+          <h3>显示分类标签数量</h3>
+          <p>现在可以直接查看每个不同种类标签的数量，更快掌握数据集类别分布。</p>
+        </article>
+        <article class="release-item">
+          <h3>全平台安装包</h3>
+          <p>新增 Windows、macOS（Apple Silicon / Intel）与 Linux 的可下载安装包。</p>
+        </article>
+      </div>
+
+      <p class="release-thanks">特别感谢 B 站用户 <strong>@小刘铁定上岸</strong> 提供的反馈与灵感。</p>
+    </div>
+  </section>
 
   <!-- ===== Screenshot ===== -->
   <div class="section" style="padding-bottom:0;">
@@ -968,7 +1084,7 @@
           <div class="download-os">🪟</div>
           <h3>Windows</h3>
           <div class="size">.msi / .exe 安装包</div>
-          <a href="https://github.com/Nazukida/labelnazuki/releases" class="btn btn-primary">
+          <a href="https://github.com/Nazukida/labelnazuki/releases/latest" class="btn btn-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             下载 Windows 版
           </a>
@@ -976,9 +1092,9 @@
 
         <div class="download-card">
           <div class="download-os">🍎</div>
-          <h3>macOS（暂未支持）</h3>
+          <h3>macOS</h3>
           <div class="size">.dmg 安装包（Apple Silicon / Intel）</div>
-          <a href="https://github.com/Nazukida/labelnazuki/releases" class="btn btn-primary">
+          <a href="https://github.com/Nazukida/labelnazuki/releases/latest" class="btn btn-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             下载 macOS 版
           </a>
@@ -986,9 +1102,9 @@
 
         <div class="download-card">
           <div class="download-os">🐧</div>
-          <h3>Linux（暂未支持）</h3>
+          <h3>Linux</h3>
           <div class="size">.deb / .AppImage</div>
-          <a href="https://github.com/Nazukida/labelnazuki/releases" class="btn btn-primary">
+          <a href="https://github.com/Nazukida/labelnazuki/releases/latest" class="btn btn-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             下载 Linux 版
           </a>
@@ -1005,7 +1121,7 @@
   <!-- ===== Footer ===== -->
   <footer class="footer">
     <p class="footer-text">
-      &copy; 2026 LabelNazuki. 基于 Tauri 2 + Svelte 5 构建，MIT 开源协议。
+      &copy; 2026 LabelNazuki. 基于 Tauri 2 + Svelte 5 构建。
     </p>
     <div class="footer-links">
       <a href="https://github.com/Nazukida/labelnazuki">GitHub 仓库</a>
