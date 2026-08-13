@@ -5,13 +5,15 @@
 - 主页：https://nazukida.github.io/labelnazuki/
 - 下载：https://github.com/Nazukida/labelnazuki/releases/latest
 
-## ver. 1.3.0
+## ver. 1.4.0
 
-- 完善重要样本的标注流程与信息呈现。
-- 添加每个不同种类标签的数量，便于查看数据集类别分布。
-- 提供 Windows、macOS（Apple Silicon / Intel）和 Linux 安装包。
+- 新增可选的 SAM 辅助标注：通过前景点、背景点或框选提示快速生成目标轮廓。
+- 支持按需下载推理运行时和多种 SAM 模型，不安装模型也不影响原有标注流程。
+- 完善困难样本标记与信息呈现，并分别统计各类别标签数量。
+- 修复切换图片时类别名丢失导致幽灵标签等问题。
+- 提供 Windows、macOS（Apple Silicon / Intel）和 Linux x64 安装包。
 
-特别感谢 B 站用户 **@小刘铁定上岸** 提供的反馈与灵感。
+感谢所有用户的反馈与建议。
 
 ## 主要特性
 
